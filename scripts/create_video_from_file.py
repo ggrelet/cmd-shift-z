@@ -12,8 +12,8 @@ from utils.git_utils import get_file_history
 
 
 @click.option(
-    '--repository_path', '-r',
-    help='Path to a git local repository.',
+    '--repository', '-r',
+    help='Path to a git local repository, or link to a remote repository.',
     required=True,
 )
 @click.option(
@@ -37,19 +37,18 @@ from utils.git_utils import get_file_history
     default='tmp',
 )
 @click.command()
-def create_video_from_file(repository_path, file_path, branch, output, tmp_dir):
+def create_video_from_file(repository, file_path, branch, output, tmp_dir):
     """
-    Generate a video from a file git history on a given branch of a given local repository.
+    Generate a video from a file git history on a given branch of a given repository (url or local path).
     """
     file_name_without_ext, ext = splitext(os.path.basename(file_path))
     os.makedirs(tmp_dir, exist_ok=True)
-
-    file_history = get_file_history(repository_path, file_path, branch)
+    file_history = get_file_history(repository, file_path, branch, tmp_dir)
     file_generated_history = generate_all_sub_versions_from_list(file_history)
 
     images_paths = []
 
-    for index, file_content in enumerate(tqdm(file_generated_history, desc='Generating images')):
+    for index, file_content in enumerate(tqdm(file_generated_history, desc='Generating images...')):
         html_file_path = os.path.join(tmp_dir, f'{file_name_without_ext}_{index}.html')
         css_file_path = os.path.join(tmp_dir, f'{file_name_without_ext}_{index}.css')
         image_file_path = os.path.join(tmp_dir, f'{file_name_without_ext}_{index}.png')
